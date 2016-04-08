@@ -3,9 +3,9 @@
 
 int main(){
 
-	MyString some("text");
+	MyString some;
 
-	std::cout << some.c_str();
+	some = "hello";
 
 	getchar();
 	return 0;
