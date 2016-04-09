@@ -2,6 +2,7 @@
 #define _MyString_
 
 #include <string.h>
+#include <stdio.h>
 
 #define DEFAULT_SIZE 1
 
@@ -11,13 +12,17 @@ class MyString{
 private:
 	char* text;
 	uint size;
+
+private:
 	void alloc(uint lenght){
 		text = new char[lenght+1];
-		size = sizeof(text);
+		size = lenght+1;
 
 	}
 	
 public:
+	// Constructors
+
 	MyString(){
 		alloc(1);
 	}
@@ -30,34 +35,55 @@ public:
 
 	MyString(MyString& str):text(str.text){}
 
+	// Destructor
 	~MyString(){
 		delete[] text;
 		text = nullptr;
 	}
 
-	// methods
+	// Methods
 
 	unsigned int lenght() const {
 		return strlen(text);
 	}
 
-	char* c_str()const {
+	char* c_str() const {
 		return text;
 	}
 
-	// operators
-
-	bool operator==(MyString& input){
-		return strcmp(text, input.text) ? false : true;
+	void ShrinkToFit(){
+		int len = size - 1;
+		if (sizeof(text)-1 > len){
+			char* temp = new char[len + 1];
+			strcpy_s(temp, len + 1, text);
+			delete[] text;
+			alloc(len);
+			strcpy_s(text, len + 1, temp);
+		}
 	}
 
-	bool operator!=(MyString& input){
-		return strcmp(text, input.text) ? true : false;
+	void Prefix(MyString& str){
+		int total_len = (size - 1) + str.lenght();
+		char* temp = new char[total_len+1];
+		strcpy_s(temp, total_len+1, str.text);
+		strcat_s(temp, total_len+1, text);
+		text = temp;
+		size = total_len+1;
+	}
+
+	// Operators
+
+	bool operator==(const MyString& str){
+		return strcmp(text, str.text) ? false : true;
+	}
+
+	bool operator!=(const MyString& str){
+		return strcmp(text, str.text) ? true : false;
 	}
 
 	MyString& operator=(const char* str){
 		int str_len = strlen(str);
-		if (str_len > lenght()){
+		if (str_len > size-1){
 			delete[] text;
 			alloc(str_len);
 		}
@@ -65,7 +91,7 @@ public:
 
 		return *this;
 	}
-	MyString& operator=(MyString& str){
+	MyString& operator=(const MyString& str){
 		if (str.lenght() > lenght()){
 			delete[] text;
 			alloc(str.lenght());
@@ -76,27 +102,30 @@ public:
 		return *this;
 	}
 
-	void shrink_to_fit(){
-		int len = lenght();
-		if (sizeof(text)-1 > len){
-			char* temp = new char[len + 1];
-			strcpy_s(temp, len + 1, text);
-			delete[] text;
-			alloc(len);
-			strcpy_s(text, len + 1, temp);
-		}
-	}
-	MyString& operator+(const char* str){
-		int str_len = size-1;
+	MyString& operator+=(const char* str){
+		int str_len = strlen(str);
 		char* temp = new char[size];
 		strcpy_s(temp, size, text);
 		delete[] text;
-	//	alloc(len + str_len);
+		alloc((size-1) + str_len);
+		strcpy_s(text, size, temp);
+		delete[] temp;
+		strcat_s(text, size, str);
 
-
-
+		return *this;
 	}
 
+	MyString& operator+=(const MyString& str){
+		char* temp = new char[size];
+		strcpy_s(temp, size, text);
+		delete[] text;
+		alloc((size - 1) + str.lenght());
+		strcpy_s(text, size, temp);
+		delete[] temp;
+		strcat_s(text, size, str.c_str());
+
+		return *this;
+	}
 };
 
 
