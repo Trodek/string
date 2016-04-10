@@ -71,6 +71,15 @@ public:
 		size = total_len+1;
 	}
 
+	void Prefix(const char* str){
+		int total_len = (size - 1) + strlen(str);
+		char* temp = new char[total_len + 1];
+		strcpy_s(temp, total_len + 1, str);
+		strcat_s(temp, total_len + 1, text);
+		text = temp;
+		size = total_len + 1;
+	}
+
 	// Operators
 
 	bool operator==(const MyString& str){
