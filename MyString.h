@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include "dynArray.h"
 
 #define DEFAULT_SIZE 1
 
@@ -25,6 +26,7 @@ public:
 
 	MyString(){
 		alloc(1);
+		text[0] = '\0';
 	}
 
 	MyString(const char* input_text){
@@ -33,7 +35,7 @@ public:
 		strcpy_s(text, size, input_text);
 	}
 
-	MyString(MyString& str):text(str.text){}
+	MyString(MyString& str):text(str.text), size(str.size){}
 
 	// Destructor
 	~MyString(){
@@ -80,6 +82,29 @@ public:
 		size = total_len + 1;
 	}
 
+	void Tokenize(const char separator, dynArray<MyString>& tokens){
+		uint i = 0;
+		while (*(text+i) != 0){
+			MyString temporal;
+			while (*(text + i) != separator && *(text + i)){
+				temporal.Sufix(*(text + i));
+				i++;
+			}
+			tokens.PushBack(temporal);
+			if (*(text + i)) i++;
+		}
+	}
+
+	void Sufix(const char c){
+		char* temp = new char[size];
+		strcpy_s(temp, size, text);
+		delete[] text;
+		*(temp+size-1) = '\0';
+		*(temp+size-2) = c;
+		text = temp;
+		size += 1;
+	}
+
 	// Operators
 
 	bool operator==(const MyString& str){
@@ -91,7 +116,7 @@ public:
 	}
 
 	MyString& operator=(const char* str){
-		int str_len = strlen(str);
+		uint str_len = (uint)strlen(str);
 		if (str_len > size-1){
 			delete[] text;
 			alloc(str_len);
@@ -104,7 +129,6 @@ public:
 		if (str.lenght() > lenght()){
 			delete[] text;
 			alloc(str.lenght());
-			strcpy_s(text, str.lenght() + 1, str.text);
 		}
 		strcpy_s(text, size, str.text);
 
@@ -132,6 +156,19 @@ public:
 		strcpy_s(text, size, temp);
 		delete[] temp;
 		strcat_s(text, size, str.c_str());
+
+		return *this;
+	}
+
+	MyString& operator+=(const char c){
+		char* temp = new char[size];
+		strcpy_s(temp, size, text);
+		delete[] text;
+		alloc(size);
+		strcpy_s(text, size, temp);
+		delete[] temp;
+		text[size - 2] = c;
+		text[size-1] = '\0';
 
 		return *this;
 	}
