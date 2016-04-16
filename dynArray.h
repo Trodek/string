@@ -13,7 +13,7 @@ class dynArray{
 private:
 	T* buffer;
 	uint capacity;
-	uint num_elements;
+	int num_elements;
 	
 public:
 
@@ -36,6 +36,7 @@ public:
 	dynArray(const dynArray& idynarray){
 		uint iarraysize = idynarray.capacity;
 		buffer = new T[iarraysize];
+		memcpy(buffer, idynarray.buffer, iarraysize*sizeof(T));
 		capacity = idynarray.capacity;
 		num_elements = idynarray.num_elements;
 	}
@@ -50,36 +51,39 @@ public:
 
 	void PushBack(const T& element){
 		num_elements++;
-		if (num_elements > capacity){
+		if ((uint) num_elements > capacity){
 			dynArray<T> temp(*this);
 			delete[] buffer;
 			capacity = ((DYNARRAY_BLOCK_SIZE)*((num_elements / DYNARRAY_BLOCK_SIZE) + 1));
 			buffer = new T[capacity];
-			memcpy(buffer, temp.buffer, capacity);
+			memcpy(buffer, temp.buffer, capacity*sizeof(T));
 		}
 		buffer[num_elements - 1] = element;
 
 	}
 
-	uint GetElements()const{
-		return num_elements;
-	}
-
 	void PushBack(){
 		num_elements++;
-		if (num_elements > capacity){
+		if ((uint)num_elements > capacity){
 			dynArray<T> temp(*this);
 			delete[] buffer;
 			capacity = ((DYNARRAY_BLOCK_SIZE)*((num_elements / DYNARRAY_BLOCK_SIZE) + 1));
 			buffer = new T[capacity];
-			memcpy(buffer, temp.buffer, capacity);
+			memcpy(buffer, temp.buffer, capacity*sizeof(T));
 		}
+	}
+
+	int size()const{
+		return num_elements;
 	}
 
 	T& operator[](uint index){
 		return buffer[index];
 	}
-	
+
+	void pop_back(){
+		if (num_elements) delete buffer[--num_elements];
+	}
 };
 
 

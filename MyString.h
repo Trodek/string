@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 #include "dynArray.h"
 
 #define DEFAULT_SIZE 1
@@ -35,7 +36,11 @@ public:
 		strcpy_s(text, size, input_text);
 	}
 
-	MyString(MyString& str):text(str.text), size(str.size){}
+	MyString(MyString& other){ 
+		alloc(other.size - 1);
+		strcpy_s(text, other.size, other.text);
+		size = other.size;
+	}
 
 	// Destructor
 	~MyString(){
@@ -86,7 +91,7 @@ public:
 		uint i = 0;
 		while (*(text+i) != 0){
 			MyString temporal;
-			while (*(text + i) != separator && *(text + i)){
+			while (*(text + i) != separator && *(text + i) && *(text + i) != '\n'){
 				temporal.Sufix(*(text + i));
 				i++;
 			}
@@ -105,14 +110,28 @@ public:
 		size += 1;
 	}
 
+	void tolowercase(){
+		for (int i = 0; i < size - 1; i++){
+			text[i] = tolower(text[i]);
+		}
+	}
+
 	// Operators
 
 	bool operator==(const MyString& str){
 		return strcmp(text, str.text) ? false : true;
 	}
 
+	bool operator==(const char* str){
+		return strcmp(text, str) ? false : true;
+	}
+
 	bool operator!=(const MyString& str){
 		return strcmp(text, str.text) ? true : false;
+	}
+
+	bool operator!=(const char* str){
+		return strcmp(text, str) ? true : false;
 	}
 
 	MyString& operator=(const char* str){
